@@ -43,13 +43,13 @@ Node representations are initialized as:
 ## 4. Cross-Modal Graph Attention Mechanism: Derivation and Implementation
 
 Each modality-specific subgraph is processed by an independent attention layer. For each node \( i \) and neighbor \( j \), the raw attention coefficient for head \( k \) is computed as:
-\[ e_{ij}^k = \text{LeakyReLU} \left( \mathbf{a}_k^T [\mathbf{W}_k \mathbf{h}_i \Vert \mathbf{W}_k \mathbf{h}_j] \right), \]
+\[ e_{ij}^k = \text{LeakyReLU} \left( \mathbf{a}_k^T [\mathbf{W}_k \mathbf{h}_i \, \| \, \mathbf{W}_k \mathbf{h}_j] \right), \]
 where \( \mathbf{W}_k \) is the learnable linear transformation for head \( k \), and \( \mathbf{a}_k \) is the learnable attention vector. The attention coefficients are normalized across the neighborhood \( \mathcal{N}(i) \):
 \[ \alpha_{ij}^k = \frac{\exp(e_{ij}^k)}{\sum_{l \in \mathcal{N}(i)} \exp(e_{il}^k)}. \]
 
 Updated node embeddings are then aggregated as:
 \[ \mathbf{h}_i' = \Big\|_{k=1}^K \sigma \Big( \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^k \mathbf{W}_k \mathbf{h}_j \Big), \]
-where \( K \) is the total number of attention heads and \( \Vert \) denotes concatenation.
+where \( K \) is the total number of attention heads and \( \| \) denotes concatenation.
 
 To robustly encode cell-cell communication, a dedicated GAT layer processes the CellChat-derived cell-cell graph, producing a contextual weight that modulates the expression matrix multiplicatively.
 
@@ -93,6 +93,6 @@ All random seeds are fixed to ensure exact reproducibility. Users may adjust the
 
 Clone this repository and install dependencies:
 ```bash
-git clone https://github.com/jjhengxin/Triple_Negative_Breast_Cancer_Multi_Omics.git
+git clone https://github.com/jjjjhengxin/Triple_Negative_Breast_Cancer_Multi_Omics.git
 cd Triple_Negative_Breast_Cancer_Multi_Omics
 pip install -r requirements.txt
