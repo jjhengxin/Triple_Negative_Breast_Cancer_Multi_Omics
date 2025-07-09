@@ -71,9 +71,8 @@ $$
 
 Optimized by partial likelihood:
 
-\[
-L_{\text{Cox}} = -\sum_{i} \delta_i \Big( \eta_i - \log \sum_{j \in R_i} e^{\eta_j} \Big)
-\]
+L\_Cox = - Σ₍ᵢ₎ δᵢ \[ ηᵢ – log Σⱼ∈Rᵢ exp(ηⱼ) ]
+
 
 ---
 
