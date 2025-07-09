@@ -71,9 +71,9 @@ $$
 
 Optimized by partial likelihood:
 
-$$
-\mathcal{L}_{\text{Cox}} = -\sum_{i} \delta_i \Big(\eta_i - \log \sum_{j \in R_i} e^{\eta_j}\Big).
-$$
+\[
+L_{\text{Cox}} = -\sum_{i} \delta_i \Big( \eta_i - \log \sum_{j \in R_i} e^{\eta_j} \Big)
+\]
 
 ---
 
