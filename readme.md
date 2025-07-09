@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-This repository contains the full implementation of the study *“Graph Attention Network-Based Multi-Omics Data Integration for Precise Key Gene Prediction in Triple-Negative Breast Cancer (TNBC)”*, as described in our manuscript and accompanying supplementary information (SI). Our pipeline systematically integrates single-cell transcriptomics, chromatin accessibility, cell-cell communication, radiomics and protein interaction networks within a unified graph attention network (GAT) architecture.
+This repository contains the full implementation of the study "Graph Attention Network-Based Multi-Omics Data Integration for Precise Key Gene Prediction in Triple-Negative Breast Cancer (TNBC)", as described in our manuscript and accompanying supplementary information (SI). Our pipeline systematically integrates single-cell transcriptomics, chromatin accessibility, cell-cell communication, radiomics, and protein interaction networks within a unified graph attention network (GAT) architecture.
 
 The objective is to decode the molecular and cellular heterogeneity of TNBC and derive robust predictive signatures with both interpretability and prognostic power.
 
@@ -31,9 +31,7 @@ The unified multi-omics graph is formally defined as a heterogeneous graph \( \m
 - The edge set \( \mathcal{E} \) comprises protein-protein interactions (STRING), homologous gene links (HGD), transcription factor bindings (Pando-inferred) and cell-cell ligand-receptor interactions (CellPhoneDB).
 
 Mathematically, the complete edge index is stored in disjoint subgraphs:
-\[
-\mathcal{E} = \{ E_{PPI}, E_{Homolog}, E_{ATAC1}, E_{ATAC2}, E_{CellChat} \}.
-\]
+\[ \mathcal{E} = \{ E_{PPI}, E_{Homolog}, E_{ATAC1}, E_{ATAC2}, E_{CellChat} \}. \]
 
 Node representations are initialized as:
 - Genes: top principal components (PCA) of normalized expression profiles.
@@ -45,19 +43,13 @@ Node representations are initialized as:
 ## 4. Cross-Modal Graph Attention Mechanism: Derivation and Implementation
 
 Each modality-specific subgraph is processed by an independent attention layer. For each node \( i \) and neighbor \( j \), the raw attention coefficient for head \( k \) is computed as:
-\[
-e_{ij}^k = \text{LeakyReLU} \left( \mathbf{a}_k^T [\mathbf{W}_k \mathbf{h}_i \, \| \, \mathbf{W}_k \mathbf{h}_j] \right),
-\]
+\[ e_{ij}^k = \text{LeakyReLU} \left( \mathbf{a}_k^T [\mathbf{W}_k \mathbf{h}_i \Vert \mathbf{W}_k \mathbf{h}_j] \right), \]
 where \( \mathbf{W}_k \) is the learnable linear transformation for head \( k \), and \( \mathbf{a}_k \) is the learnable attention vector. The attention coefficients are normalized across the neighborhood \( \mathcal{N}(i) \):
-\[
-\alpha_{ij}^k = \frac{\exp(e_{ij}^k)}{\sum_{l \in \mathcal{N}(i)} \exp(e_{il}^k)}.
-\]
+\[ \alpha_{ij}^k = \frac{\exp(e_{ij}^k)}{\sum_{l \in \mathcal{N}(i)} \exp(e_{il}^k)}. \]
 
 Updated node embeddings are then aggregated as:
-\[
-\mathbf{h}_i' = \Big\|_{k=1}^K \sigma \Big( \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^k \mathbf{W}_k \mathbf{h}_j \Big),
-\]
-where \( K \) is the total number of attention heads and \( \| \) denotes concatenation.
+\[ \mathbf{h}_i' = \Big\|_{k=1}^K \sigma \Big( \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^k \mathbf{W}_k \mathbf{h}_j \Big), \]
+where \( K \) is the total number of attention heads and \( \Vert \) denotes concatenation.
 
 To robustly encode cell-cell communication, a dedicated GAT layer processes the CellChat-derived cell-cell graph, producing a contextual weight that modulates the expression matrix multiplicatively.
 
@@ -66,23 +58,14 @@ To robustly encode cell-cell communication, a dedicated GAT layer processes the 
 ## 5. Prognostic MLP with Variational Dropout: Theoretical Basis
 
 The final node embeddings are fed into a survival prediction module based on a multi-layer perceptron (MLP). The architecture is defined as:
-\[
-\text{MLP}: \quad [256 \rightarrow 128 \rightarrow 64 \rightarrow 1],
-\]
+\[ \text{MLP}: \quad [256 \rightarrow 128 \rightarrow 64 \rightarrow 1], \]
 with ReLU activations. Dropout regularization is implemented via a variational, learnable mask inspired by the Concrete Dropout paradigm. Specifically, the dropout probability \( p \) is parameterized and relaxed via the Gumbel-Softmax trick:
-\[
-\tilde{z} = \text{Sigmoid} \left( \frac{1}{\tau} \Big( \log p - \log (1 - p) + \log u - \log (1 - u) \Big) \right),
-\quad u \sim \text{Uniform}(0,1).
-\]
+\[ \tilde{z} = \text{Sigmoid} \left( \frac{1}{\tau} \Big( \log p - \log (1 - p) + \log u - \log (1 - u) \Big) \right), \quad u \sim \text{Uniform}(0,1). \]
 
 The final output is masked as:
-\[
-\tilde{\mathbf{h}} = \mathbf{h} \odot (1 - \tilde{z}),
-\]
+\[ \tilde{\mathbf{h}} = \mathbf{h} \odot (1 - \tilde{z}), \]
 where \( \odot \) denotes element-wise multiplication. The survival risk is predicted by optimizing the Cox proportional hazards partial likelihood:
-\[
-L_{Cox} = -\sum_{i} \delta_i \Big( \eta_i - \log \sum_{j \in R_i} e^{\eta_j} \Big),
-\]
+\[ L_{Cox} = -\sum_{i} \delta_i \Big( \eta_i - \log \sum_{j \in R_i} e^{\eta_j} \Big), \]
 where \( \eta_i \) is the predicted risk score, \( \delta_i \) the event indicator, and \( R_i \) the risk set.
 
 ---
@@ -90,10 +73,7 @@ where \( \eta_i \) is the predicted risk score, \( \delta_i \) the event indicat
 ## 6. Radiomics-Transcriptome Decoder: Motivation and Derivation
 
 To bridge radiomic features and gene expression, we design a deep decoder network that learns to reconstruct high-dimensional gene profiles from lower-dimensional radiomics embeddings. Formally, given radiomic input \( \mathbf{x} \), the decoder approximates:
-\[
-\hat{\mathbf{y}} = f_{\theta}(\mathbf{x}),
-\quad L_{MSE} = \| \hat{\mathbf{y}} - \mathbf{y} \|_2^2,
-\]
+\[ \hat{\mathbf{y}} = f_{\theta}(\mathbf{x}), \quad L_{MSE} = \| \hat{\mathbf{y}} - \mathbf{y} \|_2^2, \]
 where \( f_{\theta} \) denotes the feed-forward layers with ReLU activations and sigmoid output for bounded gene expression estimates. This mapping is validated by evaluating the Spearman or rank-based correlation between reconstructed and original expression matrices, ensuring the biological plausibility of the imaging-transcriptome link.
 
 ---
