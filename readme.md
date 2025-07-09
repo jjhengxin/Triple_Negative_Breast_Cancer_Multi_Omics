@@ -71,8 +71,9 @@ $$
 
 Optimized by partial likelihood:
 
+$$
 L\_Cox = - Σ₍ᵢ₎ δᵢ \[ ηᵢ – log Σⱼ∈Rᵢ exp(ηⱼ) ]
-
+$$
 
 ---
 
