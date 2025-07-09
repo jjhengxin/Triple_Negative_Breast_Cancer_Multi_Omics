@@ -46,21 +46,11 @@ $$
 
 ## 🧠 4. Graph Attention Mechanism
 
-Each subgraph uses an independent multi-head attention:
+Each subgraph in our multi-layer framework is processed by an independent multi-head attention module. For every node, the model learns how strongly to weight its neighbors when updating its representation. The raw attention scores are calculated using a shared linear transformation and a learnable attention vector, followed by a non-linear activation.
 
-$$
-e_{ij}^{(k)} = \text{LeakyReLU}(\mathbf{a}_k^T [\mathbf{W}_k \mathbf{h}_i \, \| \, \mathbf{W}_k \mathbf{h}_j]),
-\quad
-\alpha_{ij}^{(k)} = \frac{\exp(e_{ij}^{(k)})}{\sum_{l \in \mathcal{N}(i)} \exp(e_{il}^{(k)})}.
-$$
+The scores are normalized across each node’s neighborhood so that they sum to one, ensuring that closer or more relevant neighbors contribute more to the updated node feature. Multiple attention heads run in parallel, and their outputs are concatenated to capture diverse aspects of the graph structure.
 
-Updated node embeddings:
-
-$$
-\mathbf{h}_i' = \big\|_{k=1}^K \sigma\!\Big(\!\sum_{j \in \mathcal{N}(i)} \alpha_{ij}^{(k)} \mathbf{W}_k \mathbf{h}_j\Big).
-$$
-
-Cell–cell interactions are encoded by a dedicated CellChat GAT layer, which outputs an attention-based weight to modulate single-cell expression features multiplicatively.
+To model cell–cell communication explicitly, we add a dedicated attention layer for the cell–cell graph derived from CellChat. This layer computes a contextual weight that adjusts single-cell expression data, providing extra biological context during graph message passing.
 
 ---
 
@@ -130,46 +120,5 @@ Outputs: risk predictions, gene importance scores, survival plots, and full logs
 ## 📑 Citation
 
 If you find this useful, please cite our manuscript and refer to the SI for full theoretical derivations.
-
----
-
-
-
-
-
----
-
-## 🧠 4. Graph Attention Mechanism
-
-Each subgraph uses an independent multi-head attention mechanism:
-
-```
-e_ij^(k) = LeakyReLU( a_k^T [ W_k * h_i || W_k * h_j ] )
-
-α_ij^(k) = exp( e_ij^(k) ) / sum_{l ∈ N(i)} exp( e_il^(k) )
-```
-
-The updated node embedding for node *i* is aggregated across all heads *k = 1 ... K*:
-
-```
-h'_i = CONCAT_{k=1}^K σ ( sum_{j ∈ N(i)} α_ij^(k) * W_k * h_j )
-```
-
-where `σ` denotes a non-linear activation (e.g., ELU), and `CONCAT` represents the concatenation of outputs from each attention head.
-
-To encode cell–cell communication, a dedicated **CellChat-GAT layer** processes the cell–cell graph and produces a learned contextual weight that modulates the single-cell expression matrix multiplicatively.
-
----
-
-如果需要更 LaTeX 风格，又想保持在 GitHub 上不报错，你也可以用纯行内公式（推荐这样写）：
-
-> **Mathematical Form:**
->
-> * Raw attention coefficient for head *k*:
->   `$ e_{ij}^{(k)} = \text{LeakyReLU}(\mathbf{a}_k^\top [\, \mathbf{W}_k \mathbf{h}_i \, || \, \mathbf{W}_k \mathbf{h}_j ]) $`
-> * Normalization:
->   `$ \alpha_{ij}^{(k)} = \exp(e_{ij}^{(k)}) / \sum_{l \in \mathcal{N}(i)} \exp(e_{il}^{(k)}) $`
-> * Updated embedding:
->   `$ \mathbf{h}'_i = \big\|_{k=1}^K \sigma \big( \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^{(k)} \mathbf{W}_k \mathbf{h}_j \big) $`
 
 ---
